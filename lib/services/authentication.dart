@@ -1,36 +1,53 @@
+// ignore_for_file: unnecessary_null_comparison, avoid_print
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:velocity_x/velocity_x.dart';
+
+FirebaseAuth auth = FirebaseAuth.instance;
+FirebaseFirestore firestore = FirebaseFirestore.instance;
+User? currentUser = auth.currentUser;
+final GoogleSignIn googleSignIn = GoogleSignIn();
 
 class Authentication extends ChangeNotifier {
-  final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-  final GoogleSignIn googleSignIn = GoogleSignIn();
+  // FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+  // User? currentUser = firebaseAuth.currentUser;
+  // String? userUid;
+  // String? get getUserUid => userUid;
 
-  String? userUid;
-  String? get GetUserUid => userUid;
-
-  Future logIntoAccount(String email, String password) async {
-    UserCredential userCredential = await firebaseAuth
-        .signInWithEmailAndPassword(email: email, password: password);
-
-    User? user = userCredential.user;
-    userUid = user!.uid;
-    print(userUid);
-    notifyListeners();
+  Future<UserCredential?> logIntoAccount(String email, String password,
+      {context}) async {
+    UserCredential? userCredential;
+    try {
+      userCredential = await auth.signInWithEmailAndPassword(
+          email: email, password: password);
+      // notifyListeners();
+    } on FirebaseAuthException catch (e) {
+      VxToast.show(context, msg: e.toString());
+    }
+    // final User? user = userCredential?.user;
+    // userUid = user!.uid;
+    return userCredential;
   }
 
-  Future createAccount(String email, String password) async {
-    UserCredential userCredential = await firebaseAuth
-        .createUserWithEmailAndPassword(email: email, password: password);
-
-    User? user = userCredential.user;
-    userUid = user!.uid;
-    print('Create Account Uid => $userUid');
-    notifyListeners();
+  Future<UserCredential?> createAccount({email, password, context}) async {
+    UserCredential? userCredential;
+    try {
+      userCredential = await auth.createUserWithEmailAndPassword(
+          email: email, password: password);
+      notifyListeners();
+    } on FirebaseAuthException catch (e) {
+      VxToast.show(context, msg: e.toString());
+    }
+    // final User? user = userCredential?.user;
+    // userUid = user!.uid;
+    return userCredential;
   }
 
   Future logOut() async {
-    return firebaseAuth.signOut();
+    return auth.signOut();
   }
 
   Future signInWithGoogle() async {
@@ -43,11 +60,11 @@ class Authentication extends ChangeNotifier {
         idToken: googleSignInAuthentication.idToken);
 
     final UserCredential userCredential =
-        await firebaseAuth.signInWithCredential(authCredential);
+        await auth.signInWithCredential(authCredential);
     final User? user = userCredential.user;
     assert(user!.uid != null);
-    userUid = user!.uid;
-    print('Google User Uid => $userUid');
+    // userUid = user!.uid;
+    // print('Google User Uid => $userUid');
     notifyListeners();
   }
 

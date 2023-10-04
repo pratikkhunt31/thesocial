@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, use_build_context_synchronously, avoid_print
 
 import 'dart:io';
 
@@ -14,7 +14,7 @@ class LandingUtils extends ChangeNotifier {
   final picker = ImagePicker();
   File? userImage;
 
-  File? get getUserAvatar => userImage;
+  File? get getUserImage => userImage;
   String? userImgUrl;
 
   String? get getUserImgUrl => userImgUrl;
